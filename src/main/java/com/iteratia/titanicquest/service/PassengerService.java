@@ -9,4 +9,6 @@ public interface PassengerService {
     boolean isFirstRun();
 
     void addAllPassenger(List<Passenger> passenger);
+
+    List<Passenger> getAllPassengers();
 }
