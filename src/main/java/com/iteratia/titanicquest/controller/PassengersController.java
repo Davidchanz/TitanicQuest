@@ -1,7 +1,7 @@
 package com.iteratia.titanicquest.controller;
 
-import com.iteratia.titanicquest.dto.PassengerDto;
-import com.iteratia.titanicquest.dto.PassengersDto;
+import com.iteratia.titanicquest.dto.passenger.PassengerDto;
+import com.iteratia.titanicquest.dto.passenger.PassengersDto;
 import com.iteratia.titanicquest.mapper.PassengerMapper;
 import com.iteratia.titanicquest.model.Passenger;
 import com.iteratia.titanicquest.service.PassengerService;

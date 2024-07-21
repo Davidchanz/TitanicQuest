@@ -1,4 +1,4 @@
-package com.iteratia.titanicquest.dto;
+package com.iteratia.titanicquest.dto.passenger;
 
 import com.iteratia.titanicquest.model.PClass;
 import lombok.Data;

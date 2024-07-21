@@ -1,6 +1,6 @@
 package com.iteratia.titanicquest.mapper;
 
-import com.iteratia.titanicquest.dto.PassengerDto;
+import com.iteratia.titanicquest.dto.passenger.PassengerDto;
 import com.iteratia.titanicquest.model.Passenger;
 import org.mapstruct.*;
 
