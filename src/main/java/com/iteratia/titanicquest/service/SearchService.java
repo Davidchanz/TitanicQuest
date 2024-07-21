@@ -8,4 +8,5 @@ public interface SearchService {
 
     List<SearchGuessItem> getSearchGuess(String url, String searchResult);
 
+    int getSearchedPagesCount(String searchRequest, String url);
 }
