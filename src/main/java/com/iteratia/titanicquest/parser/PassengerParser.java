@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class PassengerParser {
@@ -22,6 +23,9 @@ public class PassengerParser {
     public static Passenger parsePassenger(List<String> record){
         if(record.size() != 8)
             throw new RecordSizeIllegalStateException(record.size());
+
+        logger.info("Parse Passenger from Record '{}'",
+                List.of(Map.of("record", record)));
 
         Passenger passenger = new Passenger();
 
@@ -47,7 +51,6 @@ public class PassengerParser {
         try {
             siblingsSpouses = Integer.parseInt(parentsChildrenRecord);
         } catch (NumberFormatException ex) {
-            logger.error("Parse Parents/Children exception for ParentsChildrenRecord = '{}'", parentsChildrenRecord);
             throw new ParentsChildrenRecordIllegalStateException(parentsChildrenRecord);
         }
         return siblingsSpouses;
@@ -63,7 +66,6 @@ public class PassengerParser {
         try {
             siblingsSpouses = Integer.parseInt(siblingsSpousesRecord);
         } catch (NumberFormatException ex) {
-            logger.error("Parse Siblings/Spouses exception for SiblingsSpousesRecord = '{}'", siblingsSpousesRecord);
             throw new SiblingsSpousesIllegalStateException(siblingsSpousesRecord);
         }
         return siblingsSpouses;
@@ -79,7 +81,6 @@ public class PassengerParser {
         try {
             age = Float.parseFloat(ageRecord);
         } catch (NumberFormatException ex) {
-            logger.error("Parse Age exception for AgeRecord = '{}'", ageRecord);
             throw new AgeIllegalStateException(ageRecord);
         }
         return age;
@@ -95,7 +96,6 @@ public class PassengerParser {
         try {
             pClass = Integer.parseInt(pClassRecord);
         } catch (NumberFormatException ex) {
-            logger.error("Parse pClass exception for pClassRecord = '{}'", pClassRecord);
             throw new PClassIllegalStateException(pClassRecord);
         }
         return pClass;
