@@ -4,6 +4,7 @@ import com.iteratia.titanicquest.dto.search.SearchGuessItem;
 import com.iteratia.titanicquest.exception.notFound.EntityNotFoundException;
 import com.iteratia.titanicquest.model.Passenger;
 import com.iteratia.titanicquest.repository.SearchRepository;
+import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
@@ -70,6 +71,50 @@ public class SearchRepositoryDB implements SearchRepository {
                         SearchGuessItem.class)
                 .setMaxResults(this.maxSearchGuess)
                 .getResultList();
+    }
+
+    @Override
+    public int getSearchedPagesCount(String searchRequest, String url) {
+        EntityProperty entityProperty = this.getEntity(url); // get Entity Property
+        StringBuilder query = this.getQueryForSearch(searchRequest, entityProperty); // get query for search
+
+        int count;
+        String entityGraphName = entityProperty.getEntityGraphName(); // get entity graph name
+        if(!entityGraphName.isEmpty()) { // if entity graph exist use it otherwise not
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph(entityGraphName);
+
+            count = entityManager.createQuery(
+                            query.toString(),
+                            Integer.class)
+                    .setHint("jakarta.persistence.fetchgraph", entityGraph)
+                    .getSingleResult();
+        }else {
+            count = entityManager.createQuery(
+                            query.toString(),
+                            Integer.class)
+                    .getSingleResult();
+        }
+
+        return count;
+    }
+
+    /**
+     * Query Builder for Search
+     * @param searchInput  search request
+     * @param entityProperty entity property for search request
+     * SELECT COUNT(*) FROM Entity
+     * */
+    private StringBuilder getQueryForSearch(String searchInput, EntityProperty entityProperty) {
+        List<String> columns = entityProperty.getColumns(); // get columns for search
+
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT COUNT(*)") // select rows count
+                .append(" FROM ")
+                .append(entityProperty.getEntity().getSimpleName()) // from entity
+                .append(" s WHERE");
+        this.addConditions(query, columns, searchInput); // add conditions to query
+
+        return query;
     }
 
     /**

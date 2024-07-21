@@ -18,4 +18,9 @@ public class SearchServiceDB implements SearchService {
     public List<SearchGuessItem> getSearchGuess(String url, String searchResult) {
         return this.searchRepository.getSearchGuess(url, searchResult); // get search guess
     }
+
+    @Override
+    public int getSearchedPagesCount(String searchRequest, String url) {
+        return this.searchRepository.getSearchedPagesCount(searchRequest, url);
+    }
 }
