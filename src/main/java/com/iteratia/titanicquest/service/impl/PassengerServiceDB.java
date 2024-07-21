@@ -31,4 +31,12 @@ public class PassengerServiceDB implements PassengerService {
     public void addAllPassenger(List<Passenger> passenger) {
         this.passengerRepository.saveAll(passenger);
     }
+
+    /**
+     * Get All Passengers From DB
+     * */
+    @Override
+    public List<Passenger> getAllPassengers() {
+        return this.passengerRepository.findAll();
+    }
 }
