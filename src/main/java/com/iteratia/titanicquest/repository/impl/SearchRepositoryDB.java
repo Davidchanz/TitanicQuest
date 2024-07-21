@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -73,25 +74,30 @@ public class SearchRepositoryDB implements SearchRepository {
                 .getResultList();
     }
 
+    /**
+     * Get Search Paged
+     * @param url url for urlEntityPropertyMap to get EntityProperty for search request
+     * @param searchRequest search request
+     * */
     @Override
-    public int getSearchedPagesCount(String searchRequest, String url) {
+    public Long getSearchedPagesCount(String searchRequest, String url) {
         EntityProperty entityProperty = this.getEntity(url); // get Entity Property
-        StringBuilder query = this.getQueryForSearch(searchRequest, entityProperty); // get query for search
+        StringBuilder query = this.getQueryForSearchPaged(searchRequest, entityProperty); // get query for search
 
-        int count;
+        Long count;
         String entityGraphName = entityProperty.getEntityGraphName(); // get entity graph name
         if(!entityGraphName.isEmpty()) { // if entity graph exist use it otherwise not
             EntityGraph<?> entityGraph = entityManager.getEntityGraph(entityGraphName);
 
             count = entityManager.createQuery(
                             query.toString(),
-                            Integer.class)
+                            Long.class)
                     .setHint("jakarta.persistence.fetchgraph", entityGraph)
                     .getSingleResult();
         }else {
             count = entityManager.createQuery(
                             query.toString(),
-                            Integer.class)
+                            Long.class)
                     .getSingleResult();
         }
 
@@ -99,12 +105,90 @@ public class SearchRepositoryDB implements SearchRepository {
     }
 
     /**
-     * Query Builder for Search
+     * Get Search Paged
+     * @param url url for urlEntityPropertyMap to get EntityProperty for search request
+     * @param searchRequest search request
+     * @param entity search result class
+     * @param pageable page and sorting for search
+     * */
+    @Override
+    public <T> List<T> search(String searchRequest, String url, Class<T> entity, Pageable pageable) {
+        EntityProperty entityProperty = this.getEntity(url); // get Entity Property
+
+        StringBuilder query = this.getQuery(searchRequest, entityProperty); // get query for search
+
+        //parse pageable to get sort by and order
+        String sort = pageable.getSort().toString();
+        String by = sort.split(": ")[0]; // sort by
+        String dir = sort.split(": ")[1]; // sort order
+        if(this.isValidSortBy(by, dir, entityProperty)) { // check sorting valid
+            query.append(" ORDER BY s.").append(by).append(" ").append(dir); // if sorting is valid add sorting in query
+        } // otherwise ignore sorting
+
+        // gte page params
+        int pageNumber = pageable.getPageNumber();
+        int pageSize = pageable.getPageSize();
+
+        List<T> resultList;
+        String entityGraphName = entityProperty.getEntityGraphName();  // get entity graph name
+        if(!entityGraphName.isEmpty()) { // if entity graph exist use it otherwise not
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph(entityGraphName);
+
+            resultList = entityManager.createQuery(
+                            query.toString(),
+                            entity)
+                    .setHint("jakarta.persistence.fetchgraph", entityGraph)
+                    .setFirstResult((pageNumber) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        }else {
+            resultList = entityManager.createQuery(
+                            query.toString(),
+                            entity)
+                    .setFirstResult((pageNumber) * pageSize)
+                    .setMaxResults(pageSize)
+                    .getResultList();
+        }
+
+        return resultList;
+    }
+
+    /**
+     * Check if Sort is valid <br>
+     * Sort is valid if sort By exist in entityProperty columns or equal id and sort Order is ASC or DESC
+     * @param by sort by
+     * @param dir sort order
+     * @param entityProperty entity property for sorting
+     * */
+    private boolean isValidSortBy(String by, String dir, EntityProperty entityProperty){
+        return (entityProperty.getColumns().contains(by) || by.equalsIgnoreCase("id")) &&
+                (dir.equalsIgnoreCase("ASC") || dir.equalsIgnoreCase("DESC"));
+    }
+
+    /**
+     * Query Builder for Search <br>
+     * SELECT * FROM Entity
      * @param searchInput  search request
      * @param entityProperty entity property for search request
-     * SELECT COUNT(*) FROM Entity
      * */
-    private StringBuilder getQueryForSearch(String searchInput, EntityProperty entityProperty) {
+    private StringBuilder getQuery(String searchInput, EntityProperty entityProperty){
+        List<String> columns = entityProperty.getColumns(); // get columns for search
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT s FROM ")
+                .append(entityProperty.getEntity().getSimpleName()) // select from entity
+                .append(" s WHERE");
+        this.addConditions(query, columns, searchInput); // add conditions to query
+
+        return query;
+    }
+
+    /**
+     * Query Builder for Search Paged <br>
+     * SELECT COUNT(*) FROM Entity
+     * @param searchInput  search request
+     * @param entityProperty entity property for search request
+     * */
+    private StringBuilder getQueryForSearchPaged(String searchInput, EntityProperty entityProperty) {
         List<String> columns = entityProperty.getColumns(); // get columns for search
 
         StringBuilder query = new StringBuilder();
@@ -118,10 +202,10 @@ public class SearchRepositoryDB implements SearchRepository {
     }
 
     /**
-     * Query Builder for Search Guess
+     * Query Builder for Search Guess <br>
+     * SELECT SearchGuessItem FROM Entity
      * @param searchInput  search request
      * @param entityProperty entity property for search request
-     * SELECT SearchGuessItem FROM Entity
      * */
     private StringBuilder getQueryForSearchGuess(String searchInput, EntityProperty entityProperty) {
         List<String> columns = entityProperty.getColumns(); // get columns for search
@@ -138,11 +222,11 @@ public class SearchRepositoryDB implements SearchRepository {
     }
 
     /**
-     * Conditions Builder for Search Query
+     * Conditions Builder for Search Query <br>
+     * For all columns add condition {column} LIKE %{searchInput}%
      * @param query query for conditions
      * @param columns columns for conditions
      * @param searchInput search request = conditions value
-     * For all columns add condition {column} LIKE %{searchInput}%
      * */
     private void addConditions(StringBuilder query, List<String> columns, String searchInput){
         for (String column : columns) { // for all columns

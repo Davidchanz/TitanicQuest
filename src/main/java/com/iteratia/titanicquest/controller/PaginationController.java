@@ -18,13 +18,13 @@ public class PaginationController {
     private final SearchService searchService;
 
     @GetMapping("/{url}")
-    public PaginationDto getPagination(@RequestParam(required = false) String searchRequest,
+    public PaginationDto getPagination(@RequestParam String searchRequest,
                                        @RequestParam(required = false) Integer page,
                                        @RequestParam(required = false) Integer pageSize,
                                        @PathVariable String url){
 
         PaginationDto paginationItemDto = new PaginationDto();
-        int searchedPagesCount = this.searchService.getSearchedPagesCount(searchRequest, url); //get items count
+        Long searchedPagesCount = this.searchService.getSearchedPagesCount(searchRequest, url); //get items count
         List<Boolean> pagination = this.paginationService.getPagination(searchedPagesCount, page, pageSize); // get pagination
         paginationItemDto.setPagination(pagination);
         return paginationItemDto;
