@@ -17,7 +17,7 @@ public class PassengerParser {
 
     /**
      * Parse Passengers from record list
-     * @param record list of string records, if size != 8 throw <RecordSizeIllegalStateException>
+     * @param record list of string records, if size != 8 throw {@link RecordSizeIllegalStateException}
      *
      * */
     public static Passenger parsePassenger(List<String> record){
@@ -42,9 +42,9 @@ public class PassengerParser {
     }
 
     /**
-     * Parse ParentsChildren from String record to int
+     * Parse ParentsChildren from String record to int <br>
      * @param parentsChildrenRecord record to parse
-     * if parse failed throw <ParentsChildrenRecordIllegalStateException>
+     * if parse failed throw {@link ParentsChildrenRecordIllegalStateException}
      * */
     private static int parseParentsChildren(String parentsChildrenRecord) {
         int siblingsSpouses;
@@ -57,9 +57,9 @@ public class PassengerParser {
     }
 
     /**
-     * Parse SiblingsSpouses from String record to int
+     * Parse SiblingsSpouses from String record to int <br>
+     * if parse failed throw {@link SiblingsSpousesIllegalStateException}
      * @param siblingsSpousesRecord record to parse
-     * if parse failed throw <SiblingsSpousesIllegalStateException>
      * */
     private static int parseSiblingsSpouses(String siblingsSpousesRecord) {
         int siblingsSpouses;
@@ -72,9 +72,9 @@ public class PassengerParser {
     }
 
     /**
-     * Parse Age from String record to int
+     * Parse Age from String record to int <br>
+     * if parse failed throw {@link AgeIllegalStateException}
      * @param ageRecord record to parse
-     * if parse failed throw <AgeIllegalStateException>
      * */
     private static float parseAge(String ageRecord) {
         float age;
@@ -87,9 +87,9 @@ public class PassengerParser {
     }
 
     /**
-     * Parse PClass from String record to int
+     * Parse PClass from String record to int <br>
+     * if parse failed throw {@link PClassIllegalStateException}
      * @param pClassRecord record to parse
-     * if parse failed throw <PClassIllegalStateException>
      * */
     private static int parsePClass(String pClassRecord){
         int pClass;

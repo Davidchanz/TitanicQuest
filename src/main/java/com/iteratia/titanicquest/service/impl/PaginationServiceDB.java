@@ -1,18 +1,17 @@
 package com.iteratia.titanicquest.service.impl;
 
 import com.iteratia.titanicquest.service.PaginationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class PaginationServiceDB implements PaginationService {
-    static Logger logger = LoggerFactory.getLogger(PaginationServiceDB.class);
 
     @Value("${pagination.max}")
     private int maxPages;
@@ -24,16 +23,11 @@ public class PaginationServiceDB implements PaginationService {
      * @param pageSize how many items must be shown on one page
      * */
     @Override
-    public List<Boolean> getPagination(int itemsCount, Integer page, Integer pageSize) {
-        logger.info("Start Method '{}' Input '{}'", "getPagination()",
-                List.of(Map.of("itemsCount", itemsCount),
-                        Map.of("page", page != null ? page : "")));
-
+    public List<Boolean> getPagination(Long itemsCount, Integer page, Integer pageSize) {
         if(pageSize == null || pageSize == 0)
             pageSize = 1; //prevent bad pageSize value
 
         int pageNumbers = (int) Math.ceil(itemsCount / (double) pageSize); // compute page count for items = all_items_count / items_count_on_one_page
-        logger.info("Set Page Number '{}'", pageNumbers);
 
         List<Boolean> pagination = new ArrayList<>();
 
@@ -53,7 +47,26 @@ public class PaginationServiceDB implements PaginationService {
             pagination.add(i == page); // add page 'true' if current_page, otherwise add page 'false'
         }
 
-        logger.info("End Method '{}' Return '{}'", "getPagination()", pagination);
         return pagination;
+    }
+
+    /**
+     * Get Pageable for current Page and Sort
+     * @param page current page
+     * @param sort sort by
+     * @param order sort order
+     * @param pageSize how many item can be shown on one page
+     * */
+    @Override
+    public Pageable getPage(Integer page, String sort, String order, Integer pageSize) {
+        if(page == null || page == 0)
+            page = 1; //prevent page bad value
+
+        if(pageSize == null || pageSize == 0)
+            pageSize = 1; //prevent pageSize bad value
+
+        Sort.Direction direction = order.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC; // set sort order ASC or DESC
+
+        return PageRequest.of(page - 1, pageSize, Sort.by(direction, sort)); // get pageable
     }
 }

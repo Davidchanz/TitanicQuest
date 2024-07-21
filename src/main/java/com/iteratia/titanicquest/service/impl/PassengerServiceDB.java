@@ -4,6 +4,7 @@ import com.iteratia.titanicquest.model.Passenger;
 import com.iteratia.titanicquest.repository.PassengerRepository;
 import com.iteratia.titanicquest.service.PassengerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,10 +34,10 @@ public class PassengerServiceDB implements PassengerService {
     }
 
     /**
-     * Get All Passengers From DB
+     * Get Passengers for current Page
      * */
     @Override
-    public List<Passenger> getAllPassengers() {
-        return this.passengerRepository.findAll();
+    public List<Passenger> getPassengersPaged(Pageable pageable) {
+        return this.passengerRepository.findPassengersPaged(pageable);
     }
 }
