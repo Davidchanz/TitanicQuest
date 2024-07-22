@@ -3,6 +3,7 @@ package com.iteratia.titanicquest.repository.impl;
 import com.iteratia.titanicquest.dto.filter.Filter;
 import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.search.SearchGuessItem;
+import com.iteratia.titanicquest.dto.stats.Statistics;
 import com.iteratia.titanicquest.exception.notFound.EntityNotFoundException;
 import com.iteratia.titanicquest.model.Passenger;
 import com.iteratia.titanicquest.repository.SearchRepository;
@@ -98,24 +99,7 @@ public class SearchRepositoryDB implements SearchRepository {
         EntityProperty entityProperty = this.getEntity(url); // get Entity Property
         StringBuilder query = this.getQueryForSearchPaged(searchRequest, entityProperty); // get query for search
 
-        Long count;
-        String entityGraphName = entityProperty.getEntityGraphName(); // get entity graph name
-        if(!entityGraphName.isEmpty()) { // if entity graph exist use it otherwise not
-            EntityGraph<?> entityGraph = entityManager.getEntityGraph(entityGraphName);
-
-            count = entityManager.createQuery(
-                            query.toString(),
-                            Long.class)
-                    .setHint("jakarta.persistence.fetchgraph", entityGraph)
-                    .getSingleResult();
-        }else {
-            count = entityManager.createQuery(
-                            query.toString(),
-                            Long.class)
-                    .getSingleResult();
-        }
-
-        return count;
+        return getSingleResult(entityProperty, query, Long.class);
     }
 
     /**
@@ -124,6 +108,7 @@ public class SearchRepositoryDB implements SearchRepository {
      * @param searchRequest search request
      * @param entity search result class
      * @param pageable page and sorting for search
+     * @param filters filters for search
      * */
     @Override
     public <T> List<T> search(String searchRequest, String url, Class<T> entity, Pageable pageable, Filters filters) {
@@ -131,7 +116,7 @@ public class SearchRepositoryDB implements SearchRepository {
 
         StringBuilder query = this.getQuery(searchRequest, entityProperty); // get query for search
 
-        this.addFilters(query, entityProperty, filters);
+        this.addFilters(query, entityProperty, filters.getFilters());
 
         //parse pageable to get sort by and order
         String sort = pageable.getSort().toString();
@@ -170,6 +155,91 @@ public class SearchRepositoryDB implements SearchRepository {
     }
 
     /**
+     * Get Statistics
+     * @param url url for urlEntityPropertyMap to get EntityProperty for search request
+     * @param searchRequest search request
+     * @param filters statistics filters
+     * @param statistics statistics for query
+     * */
+    @Override
+    public Number getStatistics(String searchRequest, String url, Filters filters, Statistics statistics) {
+        EntityProperty entityProperty = this.getEntity(url); // get Entity Property
+
+        StringBuilder query;
+        if(this.isStatisticsValid(statistics, entityProperty))
+            query = this.getQueryForStatistics(searchRequest, entityProperty, statistics); // get query for search
+        else
+            return -1L;
+
+        this.addFilters(query, entityProperty, filters.getFilters()); // add filters
+
+        return getSingleResult(entityProperty, query, Number.class);
+    }
+
+    /**
+     * Get Single Result for Query
+     * @param query result query
+     * @param entityProperty entity property for search request
+     * @param result result type class
+     * */
+    private <T> T getSingleResult(EntityProperty entityProperty, StringBuilder query, Class<T> result) {
+        T singleResult;
+        String entityGraphName = entityProperty.getEntityGraphName();  // get entity graph name
+        if(!entityGraphName.isEmpty()) { // if entity graph exist use it otherwise not
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph(entityGraphName);
+
+            singleResult = entityManager.createQuery(
+                            query.toString(),
+                            result)
+                    .setHint("jakarta.persistence.fetchgraph", entityGraph)
+                    .getSingleResult();
+        }else {
+            singleResult = entityManager.createQuery(
+                            query.toString(),
+                            result)
+                    .getSingleResult();
+        }
+
+        return singleResult;
+    }
+
+    /**
+     * Query Builder for Statistics
+     * @param searchRequest  search request
+     * @param entityProperty entity property for search request
+     * @param statistics statistics for query
+     * */
+    private StringBuilder getQueryForStatistics(String searchRequest, EntityProperty entityProperty, Statistics statistics) {
+        List<String> columns = entityProperty.getColumns(); // get columns for search
+        StringBuilder query = new StringBuilder();
+        query.append("SELECT ")
+                .append(statistics.getOperation().toUpperCase())
+                .append("(")
+                .append(statistics.getField())
+                .append(")")
+                .append(" FROM ")
+                .append(entityProperty.getEntity().getSimpleName()) // select from entity
+                .append(" s");
+
+        this.addConditions(query, columns, searchRequest); // add conditions to query
+
+        this.addFilters(query, entityProperty, statistics.getFilters()); //add statistics filters
+
+        return query;
+    }
+
+    private boolean isStatisticsValid(Statistics statistics, EntityProperty entityProperty) {
+        return Arrays.stream(entityProperty.getFields())
+                .anyMatch(field ->
+                         (field.getName().equals(statistics.getField()) || statistics.getField().equals("*"))
+                                 && (statistics.isOperationValid(field.getType()))
+                                 && (statistics.getFilters().stream()
+                                 .map(filter -> this.isValidFilter(filter, entityProperty))
+                                 .reduce(true, Boolean::logicalAnd))
+                );
+    }
+
+    /**
      * Add Filtering to Query <br>
      * if all filters is valid - add filtering to query otherwise
      * if at least one filter is not valid <strong>ignore</strong> filtering
@@ -177,24 +247,46 @@ public class SearchRepositoryDB implements SearchRepository {
      * @param entityProperty entity for filtering
      * @param filters for adding
      * */
-    private void addFilters(StringBuilder query, EntityProperty entityProperty, Filters filters) {
+    private void addFilters(StringBuilder query, EntityProperty entityProperty, List<Filter> filters) {
         StringBuilder queryFilter =  new StringBuilder();
+        if(filters.isEmpty())
+            return; // not add filters if there are no one filter
+
         if(!query.toString().contains("WHERE")){
             queryFilter.append(" WHERE "); // if query not contains condition WHERE add it
         } else {
-            queryFilter.append(" AND "); //otherwise if query contains condition WHERE add AND
+            queryFilter.append(" AND "); // otherwise if query contains condition WHERE add AND
         }
-        for (Filter filter : filters.getFilters()) { // for all filters
+        boolean isInBracket = false;
+        for (Filter filter : filters) { // for all filters
             if(this.isValidFilter(filter, entityProperty)){ //check if filter is valid
+                //add filter
+                if(filter.getLogicalRelation().equalsIgnoreCase("OR")
+                        && !isInBracket){
+                    queryFilter.append("("); // if filter with logical OR wrap them in brackets ( )
+                    isInBracket = true;
+                }
                 queryFilter.append(filter.getField()) //add filter
                         .append(filter.getCondition())
                         .append(filter.getValue())
-                        .append(" AND ");
+                        .append(" ")
+                        .append(filter.getLogicalRelation().toUpperCase())
+                        .append(" ");
+                if(filter.getLogicalRelation().equalsIgnoreCase("AND")
+                        && isInBracket){
+                    queryFilter.insert(queryFilter.length() - 5, ")"); // close brackets if need
+                    isInBracket = false;
+                }
             } else
                 return; //if at least one filter is invalid ignore all filters
         }
-        int i = queryFilter.lastIndexOf(" AND ");
-        queryFilter.delete(i, i+5); // remove last AND
+        if(queryFilter.toString().endsWith(" AND ")) {
+            int i = queryFilter.lastIndexOf(" AND ");
+            queryFilter.delete(i, i + 5); // remove last AND
+        }else {
+            int i = queryFilter.lastIndexOf(" OR ");
+            queryFilter.delete(i, i + 4); // remove last OR
+        }
 
         query.append(queryFilter); // add filters in query
     }
@@ -213,6 +305,7 @@ public class SearchRepositoryDB implements SearchRepository {
                         (field.getName().equals(filter.getField()))
                                 && (filter.getValueType().equals(field.getType()))
                                 && (filter.isConditionValid())
+                                && (filter.isLogicalRelationValid())
         );
     }
 

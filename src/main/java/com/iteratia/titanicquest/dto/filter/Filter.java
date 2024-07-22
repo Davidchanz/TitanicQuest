@@ -7,6 +7,7 @@ public class Filter {
     private String field;
     private String condition;
     private String value;
+    private String logicalRelation;
 
     /**
      * Get Filter Value Type <br>
@@ -52,5 +53,14 @@ public class Filter {
         } else
             return (condition.equalsIgnoreCase("=")
                     || condition.equalsIgnoreCase("<>"));
+    }
+
+    /**
+     * Check if Filter LogicalRelation Valid <br>
+     * @return <strong>true</strong> if LogicalRelation is <strong>AND</strong> or <strong>OR</strong>
+     * */
+    public boolean isLogicalRelationValid(){
+        return logicalRelation.equalsIgnoreCase("AND")
+                || logicalRelation.equalsIgnoreCase("OR");
     }
 }

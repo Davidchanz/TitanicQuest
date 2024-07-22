@@ -2,6 +2,7 @@ package com.iteratia.titanicquest.service.impl;
 
 import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.search.SearchGuessItem;
+import com.iteratia.titanicquest.dto.stats.Statistics;
 import com.iteratia.titanicquest.repository.SearchRepository;
 import com.iteratia.titanicquest.service.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -29,5 +30,10 @@ public class SearchServiceDB implements SearchService {
     @Override
     public <T> List<T> getSearch(String searchRequest, String url, Class<T> entity, Pageable pageable, Filters filters) {
         return this.searchRepository.search(searchRequest, url, entity, pageable, filters);
+    }
+
+    @Override
+    public Number getStatistics(String searchRequest, String url, Filters filters, Statistics statistics) {
+        return this.searchRepository.getStatistics(searchRequest, url, filters, statistics);
     }
 }
