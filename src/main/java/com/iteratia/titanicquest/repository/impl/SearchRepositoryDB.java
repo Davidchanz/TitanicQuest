@@ -13,6 +13,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.Getter;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +29,7 @@ public class SearchRepositoryDB implements SearchRepository {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @Value("${search.guess.max}")
+    @Value("${iteratia.titanicquest.search-guess-max}")
     int maxSearchGuess;
 
     // this map contains properties for search by different entities
@@ -111,6 +112,7 @@ public class SearchRepositoryDB implements SearchRepository {
      * @param filters filters for search
      * */
     @Override
+    @Cacheable(cacheNames = "search")
     public <T> List<T> search(String searchRequest, String url, Class<T> entity, Pageable pageable, Filters filters) {
         EntityProperty entityProperty = this.getEntity(url); // get Entity Property
 
@@ -161,6 +163,7 @@ public class SearchRepositoryDB implements SearchRepository {
      * @param filters statistics filters
      * @param statistics statistics for query
      * */
+    @Cacheable(cacheNames = "statistics")
     @Override
     public Number getStatistics(String searchRequest, String url, Filters filters, Statistics statistics) {
         EntityProperty entityProperty = this.getEntity(url); // get Entity Property

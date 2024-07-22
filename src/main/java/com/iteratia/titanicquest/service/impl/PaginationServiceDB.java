@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class PaginationServiceDB implements PaginationService {
 
-    @Value("${pagination.max}")
+    @Value("${iteratia.titanicquest.pagination-max}")
     private int maxPages;
 
     /**
