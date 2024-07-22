@@ -1,7 +1,6 @@
 package com.iteratia.titanicquest.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -29,8 +28,8 @@ public class Passenger {
     @Column(nullable = false)
     private String sex;
 
-    @Column(nullable = false)
-    private Float age;
+    @Column(nullable = false, precision = 5, scale = 2)
+    private BigDecimal age;
 
     @Column(nullable = false)
     private Integer siblingsSpouses;

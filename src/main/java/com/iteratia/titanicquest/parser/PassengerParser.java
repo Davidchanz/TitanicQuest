@@ -33,7 +33,7 @@ public class PassengerParser {
         passenger.setPClass(PClass.values()[parsePClass(record.get(1))-1]); // get PClass value by index
         passenger.setName(record.get(2));
         passenger.setSex(record.get(3));
-        passenger.setAge(parseAge(record.get(4)));
+        passenger.setAge(new BigDecimal(record.get(4)));
         passenger.setSiblingsSpouses(parseSiblingsSpouses(record.get(5)));
         passenger.setParentsChildren(parseParentsChildren(record.get(6)));
         passenger.setFare(new BigDecimal(record.get(7)));
@@ -69,21 +69,6 @@ public class PassengerParser {
             throw new SiblingsSpousesIllegalStateException(siblingsSpousesRecord);
         }
         return siblingsSpouses;
-    }
-
-    /**
-     * Parse Age from String record to int <br>
-     * if parse failed throw {@link AgeIllegalStateException}
-     * @param ageRecord record to parse
-     * */
-    private static float parseAge(String ageRecord) {
-        float age;
-        try {
-            age = Float.parseFloat(ageRecord);
-        } catch (NumberFormatException ex) {
-            throw new AgeIllegalStateException(ageRecord);
-        }
-        return age;
     }
 
     /**
