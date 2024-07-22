@@ -2,6 +2,8 @@ package com.iteratia.titanicquest.dto.filter;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class Filter {
     private String field;
@@ -23,7 +25,7 @@ public class Filter {
         }
         try{
             Float.parseFloat(value);
-            return Float.class;
+            return BigDecimal.class;
         }catch (NumberFormatException ignore){
 
         }
@@ -37,13 +39,13 @@ public class Filter {
 
     /**
      * Check if Filter Condition Valid <br>
-     * for {@link Integer} AND {@link Float} valid condition is <strong>></strong> <strong><</strong> <strong>=</strong> <strong><></strong> <br>
+     * for {@link Integer} AND {@link BigDecimal} valid condition is <strong>></strong> <strong><</strong> <strong>=</strong> <strong><></strong> <br>
      * for {@link Boolean} valid condition is <strong>true</strong> <strong>false</strong> <br>
      * for {@link String} valid condition is <strong>=</strong> <strong><></strong> <br>
      * */
     public boolean isConditionValid() {
         Class<?> valueType = getValueType();
-        if (valueType.equals(Integer.class) || valueType.equals(Float.class)) {
+        if (valueType.equals(Integer.class) || valueType.equals(BigDecimal.class)) {
             return (condition.equalsIgnoreCase("=")
                     || condition.equalsIgnoreCase(">")
                     || condition.equalsIgnoreCase("<")
