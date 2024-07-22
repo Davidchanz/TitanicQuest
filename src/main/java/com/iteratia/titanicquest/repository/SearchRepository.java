@@ -1,5 +1,6 @@
 package com.iteratia.titanicquest.repository;
 
+import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.search.SearchGuessItem;
 import org.springframework.data.domain.Pageable;
 
@@ -11,5 +12,5 @@ public interface SearchRepository {
 
     Long getSearchedPagesCount(String searchRequest, String url);
 
-    <T> List<T> search(String searchRequest, String url, Class<T> entity, Pageable pageable);
+    <T> List<T> search(String searchRequest, String url, Class<T> entity, Pageable pageable, Filters filters);
 }
