@@ -1,5 +1,6 @@
 package com.iteratia.titanicquest.controller;
 
+import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.passenger.PassengerDto;
 import com.iteratia.titanicquest.dto.passenger.PassengersDto;
 import com.iteratia.titanicquest.mapper.PassengerMapper;
@@ -8,10 +9,7 @@ import com.iteratia.titanicquest.service.PaginationService;
 import com.iteratia.titanicquest.service.PassengerService;
 import com.iteratia.titanicquest.service.SearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,16 +32,18 @@ public class PassengersController {
                                        @RequestParam(required = false) Integer pageSize,
                                        @RequestParam String sort,
                                        @RequestParam String order,
-                                       @RequestParam String searchRequest){
+                                       @RequestParam String searchRequest,
+                                       @RequestBody(required = false) Filters filters){
 
         List<Passenger> passengers = null;
-        if(searchRequest.isEmpty())
+        if(searchRequest.isEmpty() && (filters == null || filters.getFilters().isEmpty()))
             passengers = this.passengerService.getPassengersPaged(this.paginationService.getPage(page, sort, order, pageSize));
         else
             passengers = this.searchService.getSearch(searchRequest,
                     "passengers",
                     Passenger.class,
-                    this.paginationService.getPage(page, sort, order, pageSize));
+                    this.paginationService.getPage(page, sort, order, pageSize),
+                    filters);
 
         List<PassengerDto> dtos = passengers.stream()
                 .map(this.passengerMapper::modelToDto)

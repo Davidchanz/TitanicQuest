@@ -1,5 +1,6 @@
 package com.iteratia.titanicquest.service.impl;
 
+import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.search.SearchGuessItem;
 import com.iteratia.titanicquest.repository.SearchRepository;
 import com.iteratia.titanicquest.service.SearchService;
@@ -26,7 +27,7 @@ public class SearchServiceDB implements SearchService {
     }
 
     @Override
-    public <T> List<T> getSearch(String searchRequest, String url, Class<T> entity, Pageable pageable) {
-        return this.searchRepository.search(searchRequest, url, entity, pageable);
+    public <T> List<T> getSearch(String searchRequest, String url, Class<T> entity, Pageable pageable, Filters filters) {
+        return this.searchRepository.search(searchRequest, url, entity, pageable, filters);
     }
 }
