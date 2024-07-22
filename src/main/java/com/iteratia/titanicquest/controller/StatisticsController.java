@@ -13,11 +13,15 @@ public class StatisticsController {
 
     private final SearchService searchService;
 
-    @GetMapping("/{url}")
+    /**
+     * Method Use POST instead of GET for compute and process query for get Searched Filtered Ordered and Paged request
+     * this params provides in body parts
+     * */
+    @PostMapping("/{url}")
     public Number getStatistics(@RequestPart(required = false) Filters filters,
-                              @RequestPart(required = false) Statistics statistics,
-                              @RequestParam String searchRequest,
-                              @PathVariable String url){
+                                @RequestPart(required = false) Statistics statistics,
+                                @RequestParam String searchRequest,
+                                @PathVariable String url){
 
         return this.searchService.getStatistics(searchRequest, url, filters, statistics);
     }
