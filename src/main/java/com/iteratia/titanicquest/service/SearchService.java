@@ -2,6 +2,7 @@ package com.iteratia.titanicquest.service;
 
 import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.search.SearchGuessItem;
+import com.iteratia.titanicquest.dto.stats.Statistics;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -13,4 +14,6 @@ public interface SearchService {
     Long getSearchedPagesCount(String searchRequest, String url);
 
     <T> List<T> getSearch(String searchRequest, String url, Class<T> entityClass, Pageable pageable, Filters filters);
+
+    Number getStatistics(String searchRequest, String url, Filters filters, Statistics statistics);
 }
