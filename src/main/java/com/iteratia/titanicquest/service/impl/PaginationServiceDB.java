@@ -33,7 +33,9 @@ public class PaginationServiceDB implements PaginationService {
         List<Pagination> pagination = new ArrayList<>();
 
         if(page == null)
-            page = 1; //prevent page bad value
+            page = 1; // prevent page bad value
+        if(page > pageNumbers)
+            page = pageNumbers;
 
         //      {1 - currentStartPage},{2},{3},{4},{5 - current_page},{6},{7},{8},{9 - currentLastPage}
 
