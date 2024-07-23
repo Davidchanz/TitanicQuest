@@ -6,7 +6,6 @@ import com.iteratia.titanicquest.dto.passenger.PassengersDto;
 import com.iteratia.titanicquest.mapper.PassengerMapper;
 import com.iteratia.titanicquest.model.Passenger;
 import com.iteratia.titanicquest.service.PaginationService;
-import com.iteratia.titanicquest.service.PassengerService;
 import com.iteratia.titanicquest.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +17,6 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/passengers")
 @RequiredArgsConstructor
 public class PassengersController {
-
-    private final PassengerService passengerService;
 
     private final PaginationService paginationService;
 
@@ -40,11 +37,7 @@ public class PassengersController {
         if(filters == null)
             filters = new Filters();
 
-        List<Passenger> passengers;
-        if(searchRequest.isEmpty() && filters.getFilters().isEmpty())
-            passengers = this.passengerService.getPassengersPaged(this.paginationService.getPage(page, sort, order, pageSize));
-        else
-            passengers = this.searchService.getSearch(searchRequest,
+        List<Passenger> passengers = this.searchService.getSearch(searchRequest,
                     "passengers",
                     Passenger.class,
                     this.paginationService.getPage(page, sort, order, pageSize),
