@@ -1,6 +1,6 @@
 package com.iteratia.titanicquest.loader;
 
-import com.iteratia.titanicquest.exception.io.SourceException;
+import com.iteratia.titanicquest.exception.io.ReadSourceException;
 import com.iteratia.titanicquest.model.Passenger;
 import com.iteratia.titanicquest.parser.PassengerParser;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -22,10 +21,10 @@ public class PassengersLoaderCSV implements PassengersLoader{
 
     static Logger logger = LoggerFactory.getLogger(PassengersLoaderCSV.class);
 
-    @Value("${file.url}")
+    @Value("${iteratia.titanicquest.load-file-url}")
     private String FILE_URL;
 
-    private final String COMMA_DELIMITER = ",";
+    private final String DELIMITER = ",";
 
     /**
      * Load Passenger from CSV File by SourceUrl
@@ -48,7 +47,8 @@ public class PassengersLoaderCSV implements PassengersLoader{
                 }
             }
         } catch (IOException e) {
-            throw new SourceException(source, e);
+            logger.error("End Passengers Loading with Error");
+            throw new ReadSourceException(source, e);
         }
         // parse csv record to passenger
         List<Passenger> passengers = records.stream()
@@ -67,7 +67,7 @@ public class PassengersLoaderCSV implements PassengersLoader{
     private List<String> getRecordFromLine(String line) {
         List<String> values = new ArrayList<>();
         try (Scanner rowScanner = new Scanner(line)) {
-            rowScanner.useDelimiter(COMMA_DELIMITER);
+            rowScanner.useDelimiter(DELIMITER);
             while (rowScanner.hasNext()) {
                 values.add(rowScanner.next());
             }

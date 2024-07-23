@@ -18,9 +18,9 @@ public class PaginationController {
     private final SearchService searchService;
 
     @GetMapping("/{url}")
-    public PaginationDto getPagination(@RequestParam String searchRequest,
-                                       @RequestParam(required = false) Integer page,
-                                       @RequestParam(required = false) Integer pageSize,
+    public PaginationDto getPagination(@RequestParam(defaultValue = "") String searchRequest,
+                                       @RequestParam(defaultValue = "1") Integer page,
+                                       @RequestParam(defaultValue = "50") Integer pageSize,
                                        @PathVariable String url){
 
         PaginationDto paginationItemDto = new PaginationDto();

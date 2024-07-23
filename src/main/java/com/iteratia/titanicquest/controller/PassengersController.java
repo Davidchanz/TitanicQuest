@@ -32,15 +32,17 @@ public class PassengersController {
      * this params provides in body parts
      * */
     @PostMapping("")
-    public PassengersDto getPassengers(@RequestParam(required = false) Integer page,
-                                       @RequestParam(required = false) Integer pageSize,
-                                       @RequestParam String sort,
-                                       @RequestParam String order,
-                                       @RequestParam String searchRequest,
+    public PassengersDto getPassengers(@RequestParam(defaultValue = "1") Integer page,
+                                       @RequestParam(defaultValue = "50") Integer pageSize,
+                                       @RequestParam(defaultValue = "id") String sort,
+                                       @RequestParam(defaultValue = "ASC") String order,
+                                       @RequestParam(defaultValue = "") String searchRequest,
                                        @RequestBody(required = false) Filters filters){
+        if(filters == null)
+            filters = new Filters();
 
-        List<Passenger> passengers = null;
-        if(searchRequest.isEmpty() && (filters == null || filters.getFilters().isEmpty()))
+        List<Passenger> passengers;
+        if(searchRequest.isEmpty() && filters.getFilters().isEmpty())
             passengers = this.passengerService.getPassengersPaged(this.paginationService.getPage(page, sort, order, pageSize));
         else
             passengers = this.searchService.getSearch(searchRequest,
