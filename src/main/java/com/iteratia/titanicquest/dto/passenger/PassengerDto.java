@@ -12,7 +12,7 @@ public class PassengerDto {
     private PClass pClass;
     private String name;
     private String sex;
-    private Float age;
+    private BigDecimal age;
     private Integer siblingsSpouses;
     private Integer parentsChildren;
     private BigDecimal fare;
