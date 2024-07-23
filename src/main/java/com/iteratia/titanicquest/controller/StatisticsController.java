@@ -2,6 +2,7 @@ package com.iteratia.titanicquest.controller;
 
 import com.iteratia.titanicquest.dto.filter.Filters;
 import com.iteratia.titanicquest.dto.stats.Statistics;
+import com.iteratia.titanicquest.exception.illegal.StatisticsRequestIllegalStateException;
 import com.iteratia.titanicquest.service.SearchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,13 @@ public class StatisticsController {
     @PostMapping("/{url}")
     public Number getStatistics(@RequestPart(required = false) Filters filters,
                                 @RequestPart(required = false) Statistics statistics,
-                                @RequestParam String searchRequest,
+                                @RequestParam(defaultValue = "") String searchRequest,
                                 @PathVariable String url){
+        if(filters == null)
+            filters = new Filters();
+
+        if(statistics == null)
+            throw new StatisticsRequestIllegalStateException();
 
         return this.searchService.getStatistics(searchRequest, url, filters, statistics);
     }

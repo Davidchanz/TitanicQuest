@@ -59,13 +59,13 @@ public class PaginationServiceDB implements PaginationService {
      * */
     @Override
     public Pageable getPage(Integer page, String sort, String order, Integer pageSize) {
-        if(page == null || page == 0)
+        if(page == 0)
             page = 1; //prevent page bad value
 
-        if(pageSize == null || pageSize == 0)
+        if(pageSize == 0)
             pageSize = 1; //prevent pageSize bad value
 
-        Sort.Direction direction = order.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC; // set sort order ASC or DESC
+        Sort.Direction direction = order.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC; // set sort order ASC or DESC
 
         return PageRequest.of(page - 1, pageSize, Sort.by(direction, sort)); // get pageable
     }

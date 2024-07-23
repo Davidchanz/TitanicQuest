@@ -11,7 +11,6 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 
 import java.util.List;
-import java.util.Map;
 
 @Configuration
 @RequiredArgsConstructor
@@ -33,22 +32,11 @@ public class LoadDataConfig {
 
             logger.info("Start Passengers Loading");
 
-            List<Passenger> passengers = null;
-            try {
-                passengers = this.passengersLoader.loadPassengers(null); //try to load passengers
-            }catch (Exception ignore){
-                //if exception was occurred while loading passengers ignore it
-            }
-            if(passengers != null) { //if passengers was loader save them
+            List<Passenger> passengers = this.passengersLoader.loadPassengers(null); //try to load passengers
 
-                logger.info("End Passengers Loading Successfully");
+            logger.info("End Passengers Loading Successfully");
 
-                this.passengerService.addAllPassenger(passengers);
-            } else {
-
-                logger.warn("End Passengers Loading with Error");
-
-            }
+            this.passengerService.addAllPassenger(passengers);
         }
     }
 }
