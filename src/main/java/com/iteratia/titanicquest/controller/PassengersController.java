@@ -28,8 +28,7 @@ public class PassengersController {
     private final PassengerMapper passengerMapper;
 
     /**
-     * Method Use POST instead of GET for compute and process query for get Searched Filtered Ordered and Paged request
-     * this params provides in body parts
+     * Method Use POST instead of GET because it needs RequestBody to compute request
      * */
     @PostMapping("")
     public PassengersDto getPassengers(@RequestParam(defaultValue = "1") Integer page,

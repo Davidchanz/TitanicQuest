@@ -15,8 +15,7 @@ public class StatisticsController {
     private final SearchService searchService;
 
     /**
-     * Method Use POST instead of GET for compute and process query for get Searched Filtered Ordered and Paged request
-     * this params provides in body parts
+     * Method Use POST instead of GET because it needs RequestBody to compute request
      * */
     @PostMapping("/{url}")
     public Number getStatistics(@RequestPart(required = false) Filters filters,

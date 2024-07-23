@@ -1,5 +1,6 @@
 package com.iteratia.titanicquest.service.impl;
 
+import com.iteratia.titanicquest.dto.pagination.Pagination;
 import com.iteratia.titanicquest.service.PaginationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
@@ -23,13 +24,13 @@ public class PaginationServiceDB implements PaginationService {
      * @param pageSize how many items must be shown on one page
      * */
     @Override
-    public List<Boolean> getPagination(Long itemsCount, Integer page, Integer pageSize) {
+    public List<Pagination> getPagination(int itemsCount, Integer page, Integer pageSize) {
         if(pageSize == null || pageSize == 0)
             pageSize = 1; //prevent bad pageSize value
 
         int pageNumbers = (int) Math.ceil(itemsCount / (double) pageSize); // compute page count for items = all_items_count / items_count_on_one_page
 
-        List<Boolean> pagination = new ArrayList<>();
+        List<Pagination> pagination = new ArrayList<>();
 
         if(page == null)
             page = 1; //prevent page bad value
@@ -44,7 +45,7 @@ public class PaginationServiceDB implements PaginationService {
             if(i > pageNumbers)
                 break; // break if i more than all_pages_count
 
-            pagination.add(i == page); // add page 'true' if current_page, otherwise add page 'false'
+            pagination.add(new Pagination(i == page, i)); // add page 'true' if current_page, otherwise add page 'false'
         }
 
         return pagination;

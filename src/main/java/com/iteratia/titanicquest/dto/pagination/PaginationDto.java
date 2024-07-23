@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class PaginationDto {
-    private List<Boolean> pagination;
+    private List<Pagination> pagination;
 }
