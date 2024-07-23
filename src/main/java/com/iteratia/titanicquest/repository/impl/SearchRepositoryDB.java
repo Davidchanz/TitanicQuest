@@ -96,11 +96,14 @@ public class SearchRepositoryDB implements SearchRepository {
      * @param searchRequest search request
      * */
     @Override
-    public Long getSearchedPagesCount(String searchRequest, String url) {
+    @Cacheable(cacheNames = "pageCount")
+    public int getSearchedPagesCount(String searchRequest, String url, Filters filters) {
         EntityProperty entityProperty = this.getEntity(url); // get Entity Property
         StringBuilder query = this.getQueryForSearchPaged(searchRequest, entityProperty); // get query for search
 
-        return getSingleResult(entityProperty, query, Long.class);
+        this.addFilters(query, entityProperty, filters.getFilters());
+
+        return Math.toIntExact(getSingleResult(entityProperty, query, Long.class));
     }
 
     /**

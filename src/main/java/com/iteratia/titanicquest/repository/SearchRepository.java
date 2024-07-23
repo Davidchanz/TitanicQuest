@@ -11,7 +11,7 @@ public interface SearchRepository {
 
     List<SearchGuessItem> getSearchGuess(String url, String searchInput);
 
-    Long getSearchedPagesCount(String searchRequest, String url);
+    int getSearchedPagesCount(String searchRequest, String url, Filters filters);
 
     <T> List<T> search(String searchRequest, String url, Class<T> entity, Pageable pageable, Filters filters);
 

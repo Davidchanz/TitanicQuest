@@ -23,8 +23,8 @@ public class SearchServiceDB implements SearchService {
     }
 
     @Override
-    public Long getSearchedPagesCount(String searchRequest, String url) {
-        return this.searchRepository.getSearchedPagesCount(searchRequest, url);
+    public int getSearchedPagesCount(String searchRequest, String url, Filters filters) {
+        return this.searchRepository.getSearchedPagesCount(searchRequest, url, filters);
     }
 
     @Override
