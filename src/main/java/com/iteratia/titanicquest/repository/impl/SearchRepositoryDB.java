@@ -165,8 +165,8 @@ public class SearchRepositoryDB implements SearchRepository {
      * @param filters statistics filters
      * @param statistics statistics for query
      * */
-    @Cacheable(cacheNames = "statistics")
     @Override
+    @Cacheable(cacheNames = "statistics")
     public Number getStatistics(String searchRequest, String url, Filters filters, Statistics statistics) {
         EntityProperty entityProperty = this.getEntity(url); // get Entity Property
 
@@ -178,7 +178,12 @@ public class SearchRepositoryDB implements SearchRepository {
 
         this.addFilters(query, entityProperty, filters.getFilters()); // add filters
 
-        return getSingleResult(entityProperty, query, Number.class);
+        Number singleResult = getSingleResult(entityProperty, query, Number.class);
+
+        if(singleResult == null)
+            return 0; // prevent return null
+
+        return singleResult;
     }
 
     /**
@@ -277,9 +282,13 @@ public class SearchRepositoryDB implements SearchRepository {
                         .append(" ")
                         .append(filter.getLogicalRelation().toUpperCase())
                         .append(" ");
-                if(filter.getLogicalRelation().equalsIgnoreCase("AND")
-                        && isInBracket){
-                    queryFilter.insert(queryFilter.length() - 5, ")"); // close brackets if need
+                if((filter.getLogicalRelation().equalsIgnoreCase("AND")
+                        || filter == filters.get(filters.size()-1))
+                        && isInBracket){ // close brackets if need
+                    if(filter.getLogicalRelation().equalsIgnoreCase("AND"))
+                        queryFilter.insert(queryFilter.length() - 5, ")");
+                    else
+                        queryFilter.insert(queryFilter.length() - 4, ")");
                     isInBracket = false;
                 }
             } else
